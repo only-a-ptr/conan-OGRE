@@ -26,10 +26,6 @@ class OGREConan(ConanFile):
                 installer.install("libpugixml-dev")
                 installer.install("libzzip-dev")
 
-    def requirements(self):
-        if os_info.is_windows:
-            self.requires.add('OGREdeps/[20.x]@anotherfoxguy/stable')
-
     def source(self):
         git = tools.Git()
         git.clone("https://github.com/OGRECave/ogre.git", "v1.12.2")
@@ -40,9 +36,6 @@ class OGREConan(ConanFile):
         tools.replace_in_file("CMake/Packages/FindZZip.cmake",
             "set(ZZip_LIBRARY_NAMES zziplib zzip zzip-0)",
             "set(ZZip_LIBRARY_NAMES zziplib zzip zzip-0 libzziplib)")
-        tools.replace_in_file("CMake/Dependencies.cmake",
-            '''set(OGRE_DEPENDENCIES_DIR "" CACHE PATH "Path to prebuilt OGRE dependencies")''',
-            '''set(OGRE_DEPENDENCIES_DIR ${CMAKE_PREFIX_PATH})''')
         tools.replace_in_file("CMake/Utils/FindPkgMacros.cmake",
             'set(${PREFIX} optimized ${${PREFIX}_REL} debug ${${PREFIX}_DBG})',
             'set(${PREFIX} ${${PREFIX}_REL} ${${PREFIX}_DBG})')
@@ -54,7 +47,7 @@ class OGREConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        cmake.definitions['OGRE_BUILD_DEPENDENCIES'] = 'OFF'
+        cmake.definitions['OGRE_BUILD_DEPENDENCIES'] = 'ON'
         cmake.definitions['OGRE_BUILD_COMPONENT_CSHARP'] = 'OFF'
         cmake.definitions['OGRE_BUILD_COMPONENT_JAVA'] = 'OFF'
         cmake.definitions['OGRE_BUILD_COMPONENT_PYTHON'] = 'OFF'
@@ -63,6 +56,7 @@ class OGREConan(ConanFile):
         cmake.definitions['OGRE_BUILD_SAMPLES'] = 'OFF'
         cmake.definitions['OGRE_BUILD_RENDERSYSTEM_D3D9'] = 'ON'
         cmake.definitions['OGRE_BUILD_RENDERSYSTEM_D3D11'] = 'ON'
+        cmake.definitions['OGRE_BUILD_RENDERSYSTEM_GL'] = 'OFF'
         cmake.definitions['OGRE_BUILD_RENDERSYSTEM_GL3PLUS'] = 'OFF'
         cmake.definitions['OGRE_RESOURCEMANAGER_STRICT'] = 0
         cmake.definitions['OGRE_INSTALL_SAMPLES'] = 'OFF'
